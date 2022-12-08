@@ -20,42 +20,21 @@ def encode_labels(labels):
 dataframe = pandas.read_csv("iris.csv", header=None)
 dataset = dataframe.values
 
-# for evaluation take 5 cases from every category
-# intervals -> [0; 5] + [50; 55] + [100; 105]
+X_train = dataset[:,0:4].astype(float)
 
-X_eval = dataset[0:5,0:4].astype(float)
-X_eval = numpy.concatenate((X_eval, dataset[50:55,0:4].astype(float)))
-X_eval = numpy.concatenate((X_eval, dataset[100:105,0:4].astype(float)))
-
-Y_eval = dataset[0:5,4]
-Y_eval = numpy.concatenate((Y_eval, dataset[50:55,4]))
-Y_eval = numpy.concatenate((Y_eval, dataset[100:105,4]))
-Y_eval = encode_labels(Y_eval)
-
-# for training take rest of the cases:
-# (5; 50) + (55; 100) + (105; 150)
-
-X_train = dataset[5:50,0:4].astype(float)
-X_train = numpy.concatenate((X_train, dataset[55:100,0:4].astype(float)))
-X_train = numpy.concatenate((X_train, dataset[105:150,0:4].astype(float)))
-
-Y_train = dataset[5:50,4]
-Y_train = numpy.concatenate((Y_train, dataset[55:100,4]))
-Y_train = numpy.concatenate((Y_train, dataset[105:150,4]))
+Y_train = dataset[:,4]
 Y_train = encode_labels(Y_train)
 
-def print_fit_stat(model):
-    print("Eval:")
-    model.evaluate(X_eval, Y_eval, verbose=2)
-    print("Predict (perfect is [1, 0, 0]):")
-    print(model.predict([[5.1,3.5,1.4,0.2]]))
+def print_history_stat(history):
+    print("[Last epoch] Loss: ", history.history["loss"][-1], 
+    " Accuracy: ", history.history["accuracy"][-1])
 
 def compile_and_fit(model):
     model.compile(optimizer='adam',loss='categorical_crossentropy',
     metrics=['accuracy'])
     history = model.fit(X_train, Y_train, epochs=20, batch_size=10,
     validation_split=0.1, verbose=0)
-    print_fit_stat(model)
+    print_history_stat(history)
     return history
 
 def test_1():
@@ -82,8 +61,6 @@ def test_1():
     plot.legend()
     plot.show()
     plot.clf()
-
-#test_1()
 
 def test_2():
     print("1x 16n layer:")
@@ -124,8 +101,6 @@ def test_2():
     plot.show()
     plot.clf()
 
-
-test_2()
 
 exit()
 plot.plot(history.history["loss"])
